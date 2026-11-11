@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SmartFileManager.App/SmartFileManager.App.csproj" />
+  <Project Path="SmartFileManager.Core/SmartFileManager.Core.csproj" />
+  <Project Path="SmartFileManager.Test/SmartFileManager.Test.csproj" />
+</Solution>
