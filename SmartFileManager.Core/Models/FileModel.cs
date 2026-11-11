@@ -10,7 +10,7 @@ namespace SmartFileManager.Core.Models
         public required string Name { get; init; }
 
         // Полный путь.
-        public required string FullPath { get; init; }
+        public required string FullPath { get; set; }
 
         // Размер в байтах.
         public long SizeBytes { get; init; }

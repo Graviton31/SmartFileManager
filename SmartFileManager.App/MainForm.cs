@@ -299,4 +299,82 @@ public partial class MainForm : Form
 
         lblStatus.Text = $"Удалено файлов: {filesToRemove.Count}";
     }
+
+    private async void btnOrganize_Click(object sender, EventArgs e)
+    {
+        if (dgvFiles.DataSource is not List<FileModel> files || files.Count == 0)
+        {
+            MessageBox.Show("Сначала просканируйте папку!");
+            return;
+        }
+
+        var result = MessageBox.Show(
+            $"Вы уверены, что хотите разложить {files.Count} файлов по категориям?\n" +
+            "Они будут перемещены в подпапки (Картинки, Документы и т.д.)",
+            "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+        if (result != DialogResult.Yes) return;
+
+        // Настраиваем UI на время работы
+        SetBusy(true);
+        _cts = new CancellationTokenSource();
+
+        // Настраиваем прогресс-бар
+        progressBar1.Style = ProgressBarStyle.Blocks;
+        progressBar1.Value = 0;
+        progressBar1.Visible = true;
+
+        _stopwatch.Restart();
+
+        // Создаем список категорий (в будущем мы будем загружать его из настроек/JSON)
+        // Пока создадим базовый набор прямо здесь (или вынеси в отдельный класс-фабрику)
+        var categories = new List<Category>
+    {
+        new Category { Name = "Documents", DisplayName = "Документы", TargetFolder = "Документы", Extensions = [".doc", ".docx", ".pdf", ".txt", ".ppt", ".pptx", ".xls", ".xlsx"] },
+        new Category { Name = "Images", DisplayName = "Картинки", TargetFolder = "Картинки", Extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" ]},
+        new Category { Name = "Video", DisplayName = "Видео", TargetFolder = "Видео", Extensions = [".mp4", ".avi", ".mkv", ".wmv", ".flv", ".mpeg"] },
+        new Category { Name = "Audio", DisplayName = "Звук", TargetFolder = "Звук", Extensions = [".mp3", ".wav", " .aac", ".midi"] },
+        new Category { Name = "Archives", DisplayName = "Архивы", TargetFolder = "Архивы", Extensions = [".zip", ".rar", ".7z", ".gzip"] },
+        new Category { Name = "InternetFiles", DisplayName = "Интернет Файлы", TargetFolder = "Интернет Файлы", Extensions = [".html", ".htm", ".mht"] },
+        new Category { Name = "SystemAndRunnable", DisplayName = "Системные и исполняемые", TargetFolder = "Системные и исполняемые", Extensions = [".exe", ".dll", ".ini", ".bat", ".iso"] }
+    };
+
+        var progress = new Progress<(int current, int total)>(p =>
+        {
+            progressBar1.Maximum = p.total;
+            progressBar1.Value = p.current;
+            lblStatus.Text = $"Сортировка: {p.current} из {p.total}";
+        });
+
+        try
+        {
+            var organizer = new FileOrganizerService();
+
+            // Корневая папка для сортировки — та же папка, которую мы сканировали
+            string rootPath = txtPath.Text.Trim();
+
+            await organizer.OrganizeFilesAsync(files, categories, rootPath, progress, _cts.Token);
+
+            _stopwatch.Stop();
+            lblStatus.Text = $"Сортировка завершена за {_stopwatch.Elapsed:mm\\:ss}";
+
+            // Обновляем таблицу, так как пути изменились!
+            dgvFiles.Refresh();
+        }
+        catch (OperationCanceledException)
+        {
+            lblStatus.Text = "Сортировка отменена.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Ошибка: {ex.Message}");
+        }
+        finally
+        {
+            SetBusy(false);
+            progressBar1.Visible = false;
+            _cts.Dispose();
+            _cts = null;
+        }
+    }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SmartFileManager.Core.Models
 {
-    internal class Category
+    public class Category
     {
         // 1. Имя категории (системное, на английском).
         public required string Name { get; init; }

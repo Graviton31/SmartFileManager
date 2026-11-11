@@ -37,6 +37,7 @@
             btnFindDuplicates = new Button();
             progressBar1 = new ProgressBar();
             btnDelete = new Button();
+            btnOrganize = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvFiles).BeginInit();
             SuspendLayout();
             // 
@@ -125,11 +126,23 @@
             btnDelete.UseVisualStyleBackColor = true;
             btnDelete.Click += btnDelete_Click;
             // 
+            // btnOrganize
+            // 
+            btnOrganize.Location = new Point(374, 53);
+            btnOrganize.Name = "btnOrganize";
+            btnOrganize.Size = new Size(86, 23);
+            btnOrganize.TabIndex = 9;
+            btnOrganize.Text = "Сортировать";
+            btnOrganize.TextAlign = ContentAlignment.MiddleRight;
+            btnOrganize.UseVisualStyleBackColor = true;
+            btnOrganize.Click += btnOrganize_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(917, 460);
+            Controls.Add(btnOrganize);
             Controls.Add(btnDelete);
             Controls.Add(progressBar1);
             Controls.Add(btnFindDuplicates);
@@ -156,5 +169,6 @@
         private Button btnFindDuplicates;
         private ProgressBar progressBar1;
         private Button btnDelete;
+        private Button btnOrganize;
     }
 }
